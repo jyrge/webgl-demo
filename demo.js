@@ -42,6 +42,11 @@ class Particle {
         this.location.x *= 1-Math.sin(this.location.y)/width;
     }
 
+    rotate2D(x, y, a) {
+        this.location.x = Math.cos(a) * (this.location.x - x) - Math.sin(a) * (this.location.y - y) + x;
+        this.location.y = Math.sin(a) * (this.location.x - x) + Math.cos(a) * (this.location.y - y) + y;
+    }
+
     // Random acceleration to any direction
     cascade() {
         this.acceleration.x += (0.5-Math.random())/500;
@@ -79,7 +84,7 @@ class Particle {
             this.location.x = this.homeLocation.x;
 
         if (Math.abs(this.location.y - this.homeLocation.y) > 400)
-            (this.location.y > this.homeLocation.y) ? this.location.y -= 25 : this.location.y += 25;
+            (this.location.y > this.homeLocation.y) ? this.location.y -= 50 : this.location.y += 50;
         else if (Math.abs(this.location.y - this.homeLocation.y) > 200)
             (this.location.y > this.homeLocation.y) ? this.location.y -= 10 : this.location.y += 10;
         else if (Math.abs(this.location.y - this.homeLocation.y) > 50)
@@ -98,9 +103,13 @@ class Particle {
         (this.velocity.y > 0) ? this.velocity.y -= 0.1 : this.velocity.y;
     }
 
+    // Change color
+
     colorize(color) {
         this.color = color;
     }
+
+    // Check if particle is at its original location
 
     isHome() {
         return this.location.x === this.homeLocation.x && this.location.y === this.homeLocation.y;
@@ -190,11 +199,19 @@ function render() {
             el.decelerate()
         } else if (frame < 380) {
             el.colorize("violet")
-        } else if (frame < 400) {
+        } else if (frame < 420) {
             el.colorize("white")
             el.returnHome()
-        } else if (frame < 800) {
+            el.rotate2D(width / 2, height / 2, -1 * Math.PI / 15)
+        } else if (frame < 570) {
+            el.cascade()
+            el.interference()
             el.colorize(colors[Math.floor(Math.random() * 3)])
+        } else if (frame < 620) {
+            el.colorize(colors[Math.floor(Math.random() * 3)])
+            el.decelerate()
+            el.rotate2D(width / 2, height / 2, Math.PI / 15)
+        } else if (frame < 900) {
             el.rotateY()
             el.decelerate()
         } else if (frame < 1000) {
