@@ -186,6 +186,8 @@ function render() {
     context.clearRect(0, 0, width, height);
     isFinishedAfterFinal = true;
 
+    // Render particles with effects (i. e. transcript for the demo)
+
     particles.forEach(el => {
         if (frame < 200) {
             el.colorize(colors[Math.floor(Math.random() * 3)])
@@ -238,6 +240,8 @@ function render() {
         el.render()
     });
 
+    // Restart after finishing the animation
+
     if (frame > 1200 && isFinishedAfterFinal)
         frame = 0;
 
@@ -246,5 +250,7 @@ function render() {
 
 initialize();
 requestAnimationFrame(render);
+
+// Full reset after resizing the viewport
 
 window.addEventListener("resize", initialize);
