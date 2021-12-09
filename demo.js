@@ -67,8 +67,27 @@ class Particle {
 
     // Return home linearly
     returnHome() {
-        (this.location.x > this.homeLocation.x) ? this.location.x -= 5 : this.location.x += 5;
-        (this.location.y > this.homeLocation.y) ? this.location.y -= 5 : this.location.y += 5;
+        if (Math.abs(this.location.x - this.homeLocation.x) > 400)
+            (this.location.x > this.homeLocation.x) ? this.location.x -= 25 : this.location.x += 25;
+        else if (Math.abs(this.location.x - this.homeLocation.x) > 200)
+            (this.location.x > this.homeLocation.x) ? this.location.x -= 10 : this.location.x += 10;
+        else if (Math.abs(this.location.x - this.homeLocation.x) > 50)
+            (this.location.x > this.homeLocation.x) ? this.location.x -= 5 : this.location.x += 5;
+        else if (Math.abs(this.location.x - this.homeLocation.x) > 1)
+            (this.location.x > this.homeLocation.x) ? this.location.x -= 1 : (this.location.x === this.homeLocation.x) ? null : this.location.x += 1;
+        else
+            this.location.x = this.homeLocation.x;
+
+        if (Math.abs(this.location.y - this.homeLocation.y) > 400)
+            (this.location.y > this.homeLocation.y) ? this.location.y -= 25 : this.location.y += 25;
+        else if (Math.abs(this.location.y - this.homeLocation.y) > 200)
+            (this.location.y > this.homeLocation.y) ? this.location.y -= 10 : this.location.y += 10;
+        else if (Math.abs(this.location.y - this.homeLocation.y) > 50)
+            (this.location.y > this.homeLocation.y) ? this.location.y -= 5 : this.location.y += 5;
+        else if (Math.abs(this.location.y - this.homeLocation.y) > 1)
+            (this.location.y > this.homeLocation.y) ? this.location.y -= 1 : (this.location.y === this.homeLocation.y) ? null : this.location.y += 1;
+        else
+            this.location.y = this.homeLocation.y;
     }
 
     // Reduce speed
@@ -77,7 +96,26 @@ class Particle {
         (this.velocity.x > 0) ? this.velocity.x -= 0.1 : this.velocity.x;
         (this.velocity.y < 0) ? this.velocity.y += 0.1 : this.velocity.y;
         (this.velocity.y > 0) ? this.velocity.y -= 0.1 : this.velocity.y;
+    }
 
+    colorize(color) {
+        this.color = color;
+    }
+
+    isHome() {
+        return this.location.x === this.homeLocation.x && this.location.y === this.homeLocation.y;
+    }
+
+    stop() {
+        this.acceleration = {
+            x: 0,
+            y: 0
+        };
+
+        this.velocity = {
+            x: 0,
+            y: 0
+        };
     }
 
     // Move according to velocity and acceleration
@@ -98,6 +136,11 @@ class Particle {
 }
 
 function initialize() {
+
+    // Reset animation
+
+    frame = 0;
+    isFinishedAfterFinal = true;
 
     // Update canvas width
 
@@ -126,31 +169,60 @@ function initialize() {
     }
 }
 
-let frame = 0;
+let frame = 0,
+    isFinishedAfterFinal = true;
 
 function render() {
     frame += 1;
     context.clearRect(0, 0, width, height);
+    isFinishedAfterFinal = true;
 
     particles.forEach(el => {
         if (frame < 200) {
+            el.colorize(colors[Math.floor(Math.random() * 3)])
             el.cascade()
         } else if (frame < 290) {
+            el.colorize("violet")
             el.orbital()
         } else if (frame < 360) {
+            el.colorize("white")
             el.interference()
             el.decelerate()
+        } else if (frame < 380) {
+            el.colorize("violet")
         } else if (frame < 400) {
+            el.colorize("white")
             el.returnHome()
-        } else {
+        } else if (frame < 800) {
+            el.colorize(colors[Math.floor(Math.random() * 3)])
             el.rotateY()
             el.decelerate()
-        }
+        } else if (frame < 1000) {
+            el.colorize(colors[Math.floor(Math.random() * 3)])
+            el.interference()
+        } else if (frame < 1200) {
+            el.colorize(colors[Math.floor(Math.random() * 3)])
+            el.cascade()
+        } else if (frame === 1200) {
+            el.stop()
+        } else if (frame > 1200) {
+            el.colorize(colors[Math.floor(Math.random() * 3)])
+            el.returnHome()
+        }     
+
         el.move()
-        el.sparkle()
+
+        if (frame < 1200) {
+            el.sparkle();
+        } else
+            if (!el.isHome())
+                isFinishedAfterFinal = false;
 
         el.render()
     });
+
+    if (frame > 1200 && isFinishedAfterFinal)
+        frame = 0;
 
     requestAnimationFrame(render);
 }
